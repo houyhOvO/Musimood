@@ -8,12 +8,16 @@
 import SwiftUI
 
 struct ContentView: View {
+    
     var body: some View {
         ZStack(alignment: .bottom){
-            TabView {                
+            TabView {
                 NavigationStack {
                     PlaylistsView()
                         .navigationTitle("Playlists")
+                        .safeAreaInset(edge: .bottom) {
+                            Color.clear.frame(height: 60)
+                        }
                 }
                 .tabItem {
                     Label("Playlists", systemImage: "music.note.list")
