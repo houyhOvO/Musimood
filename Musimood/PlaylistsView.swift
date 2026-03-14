@@ -6,10 +6,13 @@
 //
 
 import SwiftUI
+import SwiftData
 
 
 struct PlaylistsView: View {
-    @State private var playlists: [Playlist] = []
+    @Query private var playlists: [Playlist]
+    @Environment(\.modelContext) private var context
+    
     @State private var isShowingAddSheet = false
     @State private var newPlaylistTitle = ""
     @State private var isEditing = false
@@ -49,7 +52,8 @@ struct PlaylistsView: View {
                 title: $newPlaylistTitle,
                 onSave: {
                     if !newPlaylistTitle.isEmpty {
-                        playlists.append(Playlist(name: newPlaylistTitle))
+//                        playlists.append(Playlist(name: newPlaylistTitle))
+                        context.insert(Playlist(name: newPlaylistTitle))
                         newPlaylistTitle = ""
                     }
                 }
@@ -59,18 +63,23 @@ struct PlaylistsView: View {
     }
     
     private func deletePlaylist(at offsets: IndexSet) {
-        playlists.remove(atOffsets: offsets)
+//        playlists.remove(atOffsets: offsets)
+        for index in offsets {
+                context.delete(playlists[index])
+            }
     }
     
     private func movePlaylist(from source: IndexSet, to destination: Int) {
-        playlists.move(fromOffsets: source, toOffset: destination)
+//        playlists.move(fromOffsets: source, toOffset: destination)
+        var reordered = playlists
+            reordered.move(fromOffsets: source, toOffset: destination)
     }
 }
 
-struct Playlist: Identifiable {
-    let id = UUID()
-    var name: String
-}
+//struct Playlist: Identifiable {
+//    let id = UUID()
+//    var name: String
+//}
 
 struct NewPlaylistSheet: View {
     @Binding var title: String
