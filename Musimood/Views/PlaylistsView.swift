@@ -17,7 +17,9 @@ struct PlaylistsView: View {
     @State private var newPlaylistTitle = ""
     @State private var isEditing = false
     @Environment(\.dismiss) private var dismiss
-
+    
+    @State private var playlistBeingRenamed: Playlist? = nil
+    @State private var renamedTitle: String = ""
     
     var body: some View {
         List {
@@ -30,6 +32,21 @@ struct PlaylistsView: View {
                             .foregroundStyle(.secondary)
                         Text(playlist.name)
                     }
+                }
+                .swipeActions(edge: .trailing) {
+                    Button(role: .destructive) {
+                        context.delete(playlist)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                    
+                    Button {
+                        playlistBeingRenamed = playlist
+                        renamedTitle = playlist.name
+                    } label: {
+                        Label("Rename", systemImage: "pencil")
+                    }
+                    .tint(.blue)
                 }
             }
             .onDelete(perform: deletePlaylist)
@@ -54,44 +71,57 @@ struct PlaylistsView: View {
                 }
             }
         }
-
+        
         .sheet(isPresented: $isShowingAddSheet) {
             NewPlaylistSheet(
                 title: $newPlaylistTitle,
                 onSave: {
                     if !newPlaylistTitle.isEmpty {
-//                        playlists.append(Playlist(name: newPlaylistTitle))
                         context.insert(Playlist(name: newPlaylistTitle))
                         newPlaylistTitle = ""
                     }
                 }
             )
-        .presentationDetents([.large])
+            .presentationDetents([.large])
+        }
+        .sheet(item: $playlistBeingRenamed) { playlist in
+            NewPlaylistSheet(
+                title: $renamedTitle,
+                onSave: {
+                    playlist.name = renamedTitle
+                },
+                sheetTitle: "Rename Playlist"
+            )
         }
     }
     
     private func deletePlaylist(at offsets: IndexSet) {
-//        playlists.remove(atOffsets: offsets)
         for index in offsets {
-                context.delete(playlists[index])
-            }
+            context.delete(playlists[index])
+        }
     }
     
     private func movePlaylist(from source: IndexSet, to destination: Int) {
-//        playlists.move(fromOffsets: source, toOffset: destination)
         var reordered = playlists
-            reordered.move(fromOffsets: source, toOffset: destination)
+        reordered.move(fromOffsets: source, toOffset: destination)
+    }
+    
+    private func showingRenameSheet(for playlist: Playlist) {
+        playlistBeingRenamed = playlist
+        renamedTitle = playlist.name
+    }
+    
+    private func renamePlaylist() {
+        guard let playlist = playlistBeingRenamed else { return }
+        playlist.name = renamedTitle
+        playlistBeingRenamed = nil
     }
 }
-
-//struct Playlist: Identifiable {
-//    let id = UUID()
-//    var name: String
-//}
 
 struct NewPlaylistSheet: View {
     @Binding var title: String
     var onSave: () -> Void
+    var sheetTitle: String = "New Playlist"
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -122,7 +152,7 @@ struct NewPlaylistSheet: View {
                         .multilineTextAlignment(.center)
                 }
             }
-            .navigationTitle("New Playlist")
+            .navigationTitle(sheetTitle)
             .navigationBarTitleDisplayMode(.inline)
             
             .toolbar {
@@ -142,7 +172,7 @@ struct NewPlaylistSheet: View {
                         Image(systemName: "checkmark")
                     }
                     .buttonStyle(.glassProminent)
-                    .disabled(title.isEmpty)
+                    .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
         }
