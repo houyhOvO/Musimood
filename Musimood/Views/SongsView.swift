@@ -36,16 +36,17 @@ struct SongsView: View {
         
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button {
-                        withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
-                            isEditing.toggle()
-                        }
-                    } label: {
-                        Label(isEditing ? "Done" : "Edit",
-                              systemImage: isEditing ? "checkmark" : "pencil")
+                Button {
+                    withAnimation(.spring()) {
+                        isEditing.toggle()
                     }
-                    
+                } label: {
+                    Label(isEditing ? "Done" : "Edit",
+                          systemImage: isEditing ? "checkmark" : "pencil")
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
                     Button {
                         importSong()
                     } label: {
