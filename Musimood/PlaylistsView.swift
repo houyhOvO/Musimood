@@ -109,6 +109,7 @@ struct NewPlaylistSheet: View {
                     } label: {
                         Image(systemName: "checkmark")
                     }
+                    .buttonStyle(.glassProminent)
                     .disabled(title.isEmpty)
                 }
             }
