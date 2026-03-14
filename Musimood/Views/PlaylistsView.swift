@@ -28,9 +28,14 @@ struct PlaylistsView: View {
                     SongsView(playlist: playlist)
                 } label: {
                     HStack {
-                        Image(systemName: "music.note.list")
-                            .foregroundStyle(.secondary)
+                        playlist.artworkImage
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 40, height: 40)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                        
                         Text(playlist.name)
+                            .font(.headline)
                     }
                 }
                 .swipeActions(edge: .trailing) {
@@ -44,7 +49,7 @@ struct PlaylistsView: View {
                         playlistBeingRenamed = playlist
                         renamedTitle = playlist.name
                     } label: {
-                        Label("Rename", systemImage: "pencil")
+                        Label("Edit", systemImage: "pencil")
                     }
                     .tint(.blue)
                 }
@@ -73,22 +78,24 @@ struct PlaylistsView: View {
         }
         
         .sheet(isPresented: $isShowingAddSheet) {
-            NewPlaylistSheet(
+            PlaylistSheet(
                 title: $newPlaylistTitle,
-                onSave: {
-                    if !newPlaylistTitle.isEmpty {
-                        context.insert(Playlist(name: newPlaylistTitle))
-                        newPlaylistTitle = ""
-                    }
+                onSave: { data in
+                    let playlist = Playlist(name: newPlaylistTitle, artworkData: data)
+                    context.insert(playlist)
+                    newPlaylistTitle = ""
                 }
             )
             .presentationDetents([.large])
         }
         .sheet(item: $playlistBeingRenamed) { playlist in
-            NewPlaylistSheet(
+            PlaylistSheet(
                 title: $renamedTitle,
-                onSave: {
+                onSave: { data in
                     playlist.name = renamedTitle
+                    if let data = data {
+                        playlist.artworkData = data
+                    }
                 },
                 sheetTitle: "Rename Playlist"
             )
@@ -118,63 +125,63 @@ struct PlaylistsView: View {
     }
 }
 
-struct NewPlaylistSheet: View {
-    @Binding var title: String
-    var onSave: () -> Void
-    var sheetTitle: String = "New Playlist"
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    VStack(spacing: 12) {
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(.quaternary)
-                            .frame(width: 120, height: 120)
-                            .overlay {
-                                Image(systemName: "music.note.list")
-                                    .font(.system(size: 40))
-                                    .foregroundStyle(.secondary)
-                            }
-                        
-                        Text("Add Artwork")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .listRowBackground(Color.clear)
-                }
-                
-                Section {
-                    TextField("Playlist Name", text: $title)
-                        .font(.title3)
-                        .multilineTextAlignment(.center)
-                }
-            }
-            .navigationTitle(sheetTitle)
-            .navigationBarTitleDisplayMode(.inline)
-            
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                    }
-                }
-                
-                ToolbarItem(placement: .confirmationAction) {
-                    Button {
-                        onSave()
-                        dismiss()
-                    } label: {
-                        Image(systemName: "checkmark")
-                    }
-                    .buttonStyle(.glassProminent)
-                    .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
-                }
-            }
-        }
-    }
-}
+//struct NewPlaylistSheet: View {
+//    @Binding var title: String
+//    var onSave: () -> Void
+//    var sheetTitle: String = "New Playlist"
+//    @Environment(\.dismiss) private var dismiss
+//    
+//    var body: some View {
+//        NavigationStack {
+//            Form {
+//                Section {
+//                    VStack(spacing: 12) {
+//                        RoundedRectangle(cornerRadius: 12)
+//                            .fill(.quaternary)
+//                            .frame(width: 120, height: 120)
+//                            .overlay {
+//                                Image(systemName: "music.note.list")
+//                                    .font(.system(size: 40))
+//                                    .foregroundStyle(.secondary)
+//                            }
+//                        
+//                        Text("Add Artwork")
+//                            .font(.footnote)
+//                            .foregroundStyle(.secondary)
+//                    }
+//                    .frame(maxWidth: .infinity)
+//                    .listRowBackground(Color.clear)
+//                }
+//                
+//                Section {
+//                    TextField("Playlist Name", text: $title)
+//                        .font(.title3)
+//                        .multilineTextAlignment(.center)
+//                }
+//            }
+//            .navigationTitle(sheetTitle)
+//            .navigationBarTitleDisplayMode(.inline)
+//            
+//            .toolbar {
+//                ToolbarItem(placement: .cancellationAction) {
+//                    Button {
+//                        dismiss()
+//                    } label: {
+//                        Image(systemName: "xmark")
+//                    }
+//                }
+//                
+//                ToolbarItem(placement: .confirmationAction) {
+//                    Button {
+//                        onSave()
+//                        dismiss()
+//                    } label: {
+//                        Image(systemName: "checkmark")
+//                    }
+//                    .buttonStyle(.glassProminent)
+//                    .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
+//                }
+//            }
+//        }
+//    }
+//}
