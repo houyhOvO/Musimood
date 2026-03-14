@@ -79,20 +79,35 @@ struct NewPlaylistSheet: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
-//                TextField("Title", text: $title)
-//                    .textFieldStyle(.roundedBorder)
-//                    .padding(.horizontal)
-//                    .font(.subheadline)
-                Form {
-                    TextField("Title", text: $title)
+            Form {
+                Section {
+                    VStack(spacing: 12) {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(.quaternary)
+                            .frame(width: 120, height: 120)
+                            .overlay {
+                                Image(systemName: "music.note.list")
+                                    .font(.system(size: 40))
+                                    .foregroundStyle(.secondary)
+                            }
+                        
+                        Text("Add Artwork")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .listRowBackground(Color.clear)
                 }
                 
-                Spacer()
+                Section {
+                    TextField("Playlist Name", text: $title)
+                        .font(.title3)
+                        .multilineTextAlignment(.center)
+                }
             }
-            .padding(.top, 20)
             .navigationTitle("New Playlist")
             .navigationBarTitleDisplayMode(.inline)
+            
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button {
